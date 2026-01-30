@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, Pressable } from "react-native";
+import {View, Text, FlatList, Pressable, Alert} from "react-native";
 import { useAuth } from "../../context/AuthContext";
 import { useRouter } from "expo-router";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
+import { removeTask } from "../../lib/tasks";
 
 type Task = {
     id: string;
@@ -59,6 +60,39 @@ export default function TasksTab() {
                             ) : (
                                 <Text style={{ opacity: 0.6 }}>Kein Ort</Text>
                             )}
+                            <Pressable
+                                onPress={() => router.push({ pathname: "/(tabs)/session", params: { taskId: item.id, title: item.title } })}
+                                style={{ marginTop: 6, padding: 10, backgroundColor: "black", borderRadius: 10 }}
+                            >
+                                <Text style={{ color: "white", textAlign: "center" }}>Session starten (Timer)</Text>
+                            </Pressable>
+                            <Pressable
+                                onPress={() =>
+                                    Alert.alert(
+                                        "Task löschen?",
+                                        "Willst du diesen Task wirklich löschen?",
+                                        [
+                                            { text: "Abbrechen", style: "cancel" },
+                                            {
+                                                text: "Löschen",
+                                                style: "destructive",
+                                                onPress: async () => {
+                                                    await removeTask(item.id);
+
+                                                },
+                                            },
+                                        ]
+                                    )
+                                }
+                                style={{
+                                    marginTop: 6,
+                                    padding: 10,
+                                    borderRadius: 10,
+                                    borderWidth: 1,
+                                }}
+                            >
+                                <Text style={{ textAlign: "center" }}>🗑️ Task löschen</Text>
+                            </Pressable>
                         </View>
                     );
                 }}

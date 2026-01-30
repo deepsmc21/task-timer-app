@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { View, Text, FlatList, Modal, Pressable } from "react-native";
+import {View, Text, FlatList, Modal, Pressable, Alert} from "react-native";
 import { useAuth } from "../../context/AuthContext";
 import { useRouter } from "expo-router";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
+import { removeTask } from "../../lib/tasks";
 
 type Task = {
     id: string;
@@ -92,6 +93,33 @@ export default function Today() {
                                 style={{ marginTop: 6, padding: 10, backgroundColor: "black", borderRadius: 10 }}
                             >
                                 <Text style={{ color: "white", textAlign: "center" }}>Session starten (Timer)</Text>
+                            </Pressable>
+                            <Pressable
+                                onPress={() =>
+                                    Alert.alert(
+                                        "Task löschen?",
+                                        "Willst du diesen Task wirklich löschen?",
+                                        [
+                                            { text: "Abbrechen", style: "cancel" },
+                                            {
+                                                text: "Löschen",
+                                                style: "destructive",
+                                                onPress: async () => {
+                                                    await removeTask(item.id);
+                                                    // KEIN setTasks nötig, weil onSnapshot automatisch updated ✅
+                                                },
+                                            },
+                                        ]
+                                    )
+                                }
+                                style={{
+                                    marginTop: 6,
+                                    padding: 10,
+                                    borderRadius: 10,
+                                    borderWidth: 1,
+                                }}
+                            >
+                                <Text style={{ textAlign: "center" }}>🗑️ Task löschen</Text>
                             </Pressable>
                         </View>
                     );
